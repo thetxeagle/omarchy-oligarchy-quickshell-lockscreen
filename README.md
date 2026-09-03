@@ -1,0 +1,1 @@
+# omarchy-oligarchy-quickshell-lockscreen
