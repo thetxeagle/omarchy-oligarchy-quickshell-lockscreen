@@ -6,12 +6,15 @@ An Oligarchy-themed lock screen for Omarchy Quickshell, with a dark executive-pa
 
 ## Screenshots
 
-Screenshots coming soon. Contributions with captures from multiple Omarchy themes are welcome.
+![Oligarchy lockscreen with capitalism tagline](assets/screenshots/lockscreen-capitalism.png)
+
+![Oligarchy lockscreen with Arch tagline](assets/screenshots/lockscreen-arch.png)
 
 ## Features
 
 - **Oligarchy wordmark** — bundled ASCII source and tightly cropped generated PNG.
 - **Theme-aware styling** — normal foreground elements inherit `Color.accent`.
+- **Hot reload friendly** — local plugin edits are picked up by the running Omarchy shell.
 - **Personal identity** — reads `~/.displayName`, then falls back to the runtime username; loads `~/.face` when available.
 - **Authentication preserved** — password PAM, fingerprint support, wake handling, focus recovery, and failure states remain in `Service.qml`.
 - **Local assets** — tagline selection does not depend on another plugin staying installed.

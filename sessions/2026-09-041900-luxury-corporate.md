@@ -48,6 +48,7 @@ Prepared the Oligarchy-only public plugin and applied the first luxury-corporate
 - Stock/custom service diff remains limited to the existing 25-second timer.
 - Live plugin reloaded successfully after the opacity fallback; no new QML/image errors appeared.
 - Restored the static version after the animation experiment and corrected tagline selection to run on each lock activation.
+- Added two user-captured 4K lockscreen screenshots to the public README gallery.
 
 ## Next Steps
 
