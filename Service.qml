@@ -33,6 +33,7 @@ Item {
   property string lastEventAt: ""
   property bool strandedLock: false
   property bool strandedLockResolved: false
+  property bool activeLockObserved: false
 
   readonly property bool locked: lockRequested || sessionLock.locked || sessionLock.secure
   readonly property bool authenticating: authenticatingPassword || fingerprintAuthenticating
@@ -91,7 +92,7 @@ Item {
     if (strandedLockResolved || strandedLockCheckProc.running) return
 
     // A lock this shell took is nobody's orphan.
-    if (locked || lockRequested) {
+    if (locked || lockRequested || activeLockObserved) {
       strandedLockResolved = true
       return
     }
@@ -158,6 +159,7 @@ Item {
     if (!root.locked && !lockRequested) return
 
     lockRequested = false
+    activeLockObserved = false
     pendingSessionLock = false
     sessionLockStabilizeTimer.stop()
     pendingSessionLockTimer.stop()
@@ -244,6 +246,7 @@ Item {
     onSecureStateChanged: {
       root.logEvent("secure=" + secure)
       if (secure) {
+        root.activeLockObserved = true
         root.pendingSessionLock = false
         sessionLockStabilizeTimer.stop()
         pendingSessionLockTimer.stop()
@@ -262,6 +265,7 @@ Item {
 
       if (!locked && root.lockRequested) {
         root.lockRequested = false
+        root.activeLockObserved = false
         root.pendingSessionLock = false
         sessionLockStabilizeTimer.stop()
         pendingSessionLockTimer.stop()

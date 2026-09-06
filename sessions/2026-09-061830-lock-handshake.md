@@ -13,6 +13,7 @@ Fixed the lock startup ordering that could leave Hyprland showing its failsafe t
 
 - Added a pre-lock screensaver shutdown process targeting only `org.omarchy.screensaver` terminal windows.
 - Delayed the session-lock stabilization timer until that process exits.
+- Added ownership tracking so monitor changes cannot re-enter stranded-lock recovery after `secure=true`.
 - Documented the user-visible fix in `CHANGELOG.md`.
 
 ## Files Changed
@@ -37,11 +38,13 @@ Fixed the lock startup ordering that could leave Hyprland showing its failsafe t
 - The validated `Service.qml` was installed into the active user plugin with matching SHA-256 checksums.
 - `omarchy restart shell` hot-reloaded the plugin without `Type LockView unavailable` or QML errors.
 - Lock preview loaded and dismissed successfully; no lock takeover was performed during validation.
+- User-provided logs confirmed normal handshakes at approximately 0.58 seconds and exposed a duplicate recovery after a monitor-blanker reload; this guard addresses that path.
 
 ## Next Steps
 
 - [x] Run validation and inspect the diff.
 - [x] Install the validated `Service.qml` into the active user plugin.
+- [x] Install the ownership guard into the active user plugin.
 - [ ] Run repeated manual lock/unlock tests and inspect the journal for handshake timing.
 
 ## Notes
