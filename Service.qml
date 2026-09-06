@@ -60,6 +60,14 @@ Item {
     if (!pendingSessionLockTimer.running) pendingSessionLockTimer.start()
   }
 
+  function prepareLockSurface() {
+    // The Omarchy idle service requests the Wayland lock before its wrapper
+    // tears down the terminal-based screensaver. Give Hyprland one client
+    // transition at a time; otherwise the lock handshake can sit in failsafe
+    // until the screensaver windows finish disappearing.
+    if (!stopScreensaverProcess.running) stopScreensaverProcess.running = true
+  }
+
   function requestSessionLock() {
     if (!lockRequested || sessionLock.locked || sessionLock.secure) return
     if (sessionLockStabilizeTimer.running) return
@@ -135,7 +143,8 @@ Item {
     lockRequested = true
     armBlankTimer()
     logEvent("lock-requested")
-    queueSessionLock()
+    logEvent("lock-pending: screensaver-shutdown")
+    prepareLockSurface()
 
     Qt.callLater(function() {
       root.refreshBackground()
@@ -409,6 +418,15 @@ Item {
   Process {
     id: blankProcess
     command: ["bash", "-c", "omarchy-brightness-keyboard off; omarchy-brightness-display off"]
+  }
+
+  Process {
+    id: stopScreensaverProcess
+    command: ["bash", "-lc", "pkill -f '[o]rg.omarchy.screensaver' 2>/dev/null || true"]
+
+    onExited: {
+      if (root.lockRequested) root.queueSessionLock()
+    }
   }
 
   Timer {
