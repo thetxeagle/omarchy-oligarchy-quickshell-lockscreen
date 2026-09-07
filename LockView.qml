@@ -400,7 +400,7 @@ Item {
       anchors.top: parent.top
       anchors.topMargin: Math.max(
         220,
-        parent.height * 0.34
+        parent.height * 0.41
       )
 
       Rectangle {
