@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Replaced the lockscreen wordmark with the companion vector Oligarchy banner and added a restrained green phosphor glow treatment.
+- Added a root-level `preview.png` marketplace preview image.
 - Fixed an intermittent Hyprland failsafe screen by shutting down terminal-based screensaver windows before starting the session-lock handshake.
 - Prevented monitor changes during an active lock from triggering a duplicate stranded-lock recovery.
 - Prepared the Oligarchy-only public plugin package.

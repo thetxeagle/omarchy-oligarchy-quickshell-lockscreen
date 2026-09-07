@@ -2,7 +2,7 @@
 
 ![Omarchy](https://img.shields.io/badge/Omarchy-plugin-111111?style=flat-square) ![License](https://img.shields.io/badge/license-MIT-111111?style=flat-square)
 
-An Oligarchy-themed lock screen for Omarchy Quickshell, with a dark executive-panel aesthetic, theme-aware accent coloring, bundled wordmark assets, and preserved password/fingerprint authentication.
+An Oligarchy-themed lock screen for Omarchy Quickshell, with a dark executive-panel aesthetic, a green phosphor glow treatment, bundled wordmark assets, and preserved password/fingerprint authentication.
 
 ## Screenshots
 
@@ -18,6 +18,8 @@ An Oligarchy-themed lock screen for Omarchy Quickshell, with a dark executive-pa
 - **Personal identity** — reads `~/.displayName`, then falls back to the runtime username; loads `~/.face` when available.
 - **Authentication preserved** — password PAM, fingerprint support, wake handling, focus recovery, and failure states remain in `Service.qml`.
 - **Local assets** — tagline selection does not depend on another plugin staying installed.
+- **Official banner source** — uses the vectorized Oligarchy banner from the companion screensaver project.
+- **Marketplace preview** — includes a root-level preview.png lockscreen image.
 
 ## Installation
 
@@ -40,6 +42,10 @@ scripts/regenerate-wordmark.sh
 ```
 
 The script discovers JetBrains Mono Nerd Font with `fc-match`, renders from the original source, trims transparent padding, and writes a fresh deterministic PNG.
+
+The lock view uses the transparent raster derived from
+`assets/source/oligarchy-logo.svg`, adapted from the vectorized banner shipped by
+[fabiopauli/omarchy-oligarchy-plugin](https://github.com/fabiopauli/omarchy-oligarchy-plugin).
 
 ## Development and validation
 

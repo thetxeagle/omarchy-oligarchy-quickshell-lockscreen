@@ -22,6 +22,7 @@ Item {
   property string oligarchyTagline: ""
   property string displayName: ""
   property string fallbackUsername: ""
+  readonly property color oligarchyGlowColor: "#c8ff91"
 
   readonly property string homeDirectory: Quickshell.env("HOME")
 
@@ -331,7 +332,7 @@ Item {
       id: brandGroup
 
       width: Math.min(root.width * 0.66, 1280)
-      height: width * 864 / 4321
+      height: width * 10070 / 55792.5
 
       anchors.horizontalCenter: parent.horizontalCenter
       anchors.verticalCenter: parent.verticalCenter
@@ -341,8 +342,8 @@ Item {
         width: parent.width * 1.10
         height: parent.height * 2.10
         radius: height / 2
-        color: Color.accent
-        opacity: 0.035
+        color: root.oligarchyGlowColor
+        opacity: 0.045
 
         layer.enabled: true
 
@@ -354,6 +355,34 @@ Item {
       }
 
       Image {
+        id: oligarchyWordmarkGlow
+
+        anchors.centerIn: parent
+
+        width: parent.width * 1.012
+        height: parent.height * 1.012
+
+        source: Qt.resolvedUrl("assets/generated/oligarchy-official-wordmark.png")
+
+        fillMode: Image.PreserveAspectFit
+        smooth: true
+        mipmap: true
+        asynchronous: false
+        cache: true
+        opacity: 0.72
+
+        layer.enabled: true
+
+        layer.effect: MultiEffect {
+          blurEnabled: true
+          blur: 1.0
+          blurMax: 32
+          colorization: 1.0
+          colorizationColor: root.oligarchyGlowColor
+        }
+      }
+
+      Image {
         id: omarchyWordmark
 
         anchors.centerIn: parent
@@ -361,19 +390,19 @@ Item {
         width: parent.width
         height: parent.height
 
-        source: Qt.resolvedUrl("assets/generated/oligarchy-wordmark.png")
+        source: Qt.resolvedUrl("assets/generated/oligarchy-official-wordmark.png")
 
         fillMode: Image.PreserveAspectFit
         smooth: true
         mipmap: true
         asynchronous: false
-        cache: false
+        cache: true
 
         layer.enabled: true
 
         layer.effect: MultiEffect {
           colorization: 1.0
-          colorizationColor: Color.accent
+          colorizationColor: root.oligarchyGlowColor
         }
       }
 
@@ -388,7 +417,7 @@ Item {
 
         text: root.oligarchyTagline
 
-        color: Color.accent
+        color: root.oligarchyGlowColor
         opacity: 0.78
 
         font.family: Style.font.family
