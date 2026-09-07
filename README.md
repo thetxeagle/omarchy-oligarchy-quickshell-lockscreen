@@ -6,9 +6,7 @@ An Oligarchy-themed lock screen for Omarchy Quickshell, with a dark executive-pa
 
 ## Screenshots
 
-![Oligarchy lockscreen with capitalism tagline](assets/screenshots/lockscreen-capitalism.png)
-
-![Oligarchy lockscreen with Arch tagline](assets/screenshots/lockscreen-arch.png)
+![Oligarchy lockscreen preview](preview.png)
 
 ## Features
 
@@ -20,6 +18,7 @@ An Oligarchy-themed lock screen for Omarchy Quickshell, with a dark executive-pa
 - **Local assets** — tagline selection does not depend on another plugin staying installed.
 - **Official banner source** — uses the vectorized Oligarchy banner from the companion screensaver project.
 - **Marketplace preview** — includes a root-level preview.png lockscreen image.
+- **Password visibility** — toggles masked or visible entry text with the eye control; masking is restored when the lock view deactivates.
 
 ## Installation
 

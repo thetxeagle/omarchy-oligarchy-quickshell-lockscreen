@@ -19,6 +19,7 @@ Item {
   property bool loadBackground: true
   property string passwordText: ""
   property bool syncingPasswordText: false
+  property bool passwordVisible: false
   property string oligarchyTagline: ""
   property string displayName: ""
   property string fallbackUsername: ""
@@ -141,6 +142,9 @@ Item {
   }
 
   onInputEnabledChanged: {
+    if (!inputEnabled)
+      passwordVisible = false
+
     if (inputEnabled) {
       randomizeOligarchyTagline()
       Qt.callLater(forcePasswordFocus)
@@ -620,7 +624,7 @@ Item {
           anchors.fill: parent
 
           anchors.leftMargin: 18
-          anchors.rightMargin: 18
+          anchors.rightMargin: 52
 
           verticalAlignment:
             TextInput.AlignVCenter
@@ -639,7 +643,9 @@ Item {
             root.authenticatingPassword
 
           echoMode:
-            TextInput.Password
+            root.passwordVisible
+              ? TextInput.Normal
+              : TextInput.Password
 
           passwordCharacter:
             "\u25CF"
@@ -767,6 +773,36 @@ Item {
 
           elide:
             Text.ElideRight
+        }
+
+        Text {
+          id: passwordVisibilityIcon
+
+          anchors.right: parent.right
+          anchors.rightMargin: 16
+          anchors.verticalCenter: parent.verticalCenter
+
+          text:
+            root.passwordVisible
+              ? "󰈈"
+              : "󰈉"
+
+          color: Color.accent
+          opacity: 0.78
+
+          font.family: Style.font.family
+          font.pixelSize: 17
+
+          MouseArea {
+            anchors.fill: parent
+            cursorShape: Qt.PointingHandCursor
+
+            onClicked: {
+              root.passwordVisible = !root.passwordVisible
+              root.wakeRequested()
+              root.forcePasswordFocus()
+            }
+          }
         }
       }
 
