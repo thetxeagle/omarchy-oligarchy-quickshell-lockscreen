@@ -1,4 +1,4 @@
 # Active Work
 
-- Session log: `sessions/2026-09-062020-preview-password-toggle.md`
-- Latest lockscreen capture is the sole preview; password visibility toggle is live and validated.
+- Session log: `sessions/2026-09-062045-lockscreen-composition.md`
+- Composition pass: centered identity stack, left clock, reserved right module, larger display name.

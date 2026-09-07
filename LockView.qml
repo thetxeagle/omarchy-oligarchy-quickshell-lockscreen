@@ -234,18 +234,18 @@ Item {
     Column {
       id: clockGroup
 
-      anchors.top: parent.top
-      anchors.topMargin: Math.max(
-        60,
-        parent.height * 0.07
+      anchors.left: parent.left
+      anchors.leftMargin: Math.max(
+        48,
+        parent.width * 0.085
       )
-
-      anchors.horizontalCenter: parent.horizontalCenter
+      anchors.verticalCenter: parent.verticalCenter
+      anchors.verticalCenterOffset: -parent.height * 0.06
 
       spacing: 7
 
       Text {
-        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.left: parent.left
 
         text: "OLIGARCHY // SECURE SESSION"
 
@@ -257,13 +257,13 @@ Item {
         font.letterSpacing: 3
         font.weight: Font.Medium
 
-        horizontalAlignment: Text.AlignHCenter
+        horizontalAlignment: Text.AlignLeft
       }
 
       Text {
         id: clockText
 
-        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.left: parent.left
 
         text: root.formatClock(new Date())
 
@@ -277,13 +277,13 @@ Item {
 
         font.weight: Font.Light
 
-        horizontalAlignment: Text.AlignHCenter
+        horizontalAlignment: Text.AlignLeft
       }
 
       Text {
         id: dateText
 
-        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.left: parent.left
 
         text: Qt.formatDate(
           new Date(),
@@ -297,7 +297,67 @@ Item {
         font.pixelSize: 21
         font.weight: Font.Normal
 
-        horizontalAlignment: Text.AlignHCenter
+        horizontalAlignment: Text.AlignLeft
+      }
+    }
+
+    /* Reserved for the right-side session module. */
+    Item {
+      id: reservedModule
+
+      width: Math.min(parent.width * 0.19, 360)
+      height: 112
+
+      anchors.right: parent.right
+      anchors.rightMargin: Math.max(
+        48,
+        parent.width * 0.085
+      )
+      anchors.verticalCenter: clockGroup.verticalCenter
+
+      Rectangle {
+        anchors.fill: parent
+
+        radius: 10
+        color: Color.accent
+        opacity: 0.035
+
+        border.width: 1
+        border.color: Color.accent
+      }
+
+      Column {
+        anchors.fill: parent
+        anchors.margins: 16
+        spacing: 10
+
+        Text {
+          text: "SECURE CHANNEL"
+
+          color: Color.accent
+          opacity: 0.58
+
+          font.family: Style.font.family
+          font.pixelSize: 10
+          font.letterSpacing: 1.8
+          font.weight: Font.Medium
+        }
+
+        Rectangle {
+          width: parent.width * 0.72
+          height: 4
+          radius: 2
+          color: Color.accent
+          opacity: 0.20
+        }
+
+        Rectangle {
+          width: parent.width * 0.46
+          height: 4
+          radius: 2
+          color: Color.accent
+          opacity: 0.11
+        }
       }
     }
 
@@ -337,7 +397,11 @@ Item {
       height: width * 10070 / 55792.5
 
       anchors.horizontalCenter: parent.horizontalCenter
-      anchors.verticalCenter: parent.verticalCenter
+      anchors.top: parent.top
+      anchors.topMargin: Math.max(
+        220,
+        parent.height * 0.26
+      )
 
       Rectangle {
         anchors.centerIn: parent
@@ -466,14 +530,9 @@ Item {
     Column {
       id: loginGroup
 
-      anchors.bottom: parent.bottom
-
-      anchors.bottomMargin: Math.max(
-        72,
-        parent.height * 0.075
-      )
-
       anchors.horizontalCenter: parent.horizontalCenter
+      anchors.top: brandGroup.bottom
+      anchors.topMargin: 72
 
       spacing: 10
 
@@ -588,7 +647,7 @@ Item {
         color: Color.accent
 
         font.family: Style.font.family
-        font.pixelSize: 17
+        font.pixelSize: 22
         font.weight: Font.Medium
 
         horizontalAlignment: Text.AlignHCenter
