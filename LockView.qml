@@ -22,8 +22,6 @@ Item {
   property string oligarchyTagline: ""
   property string displayName: ""
   property string fallbackUsername: ""
-  readonly property color oligarchyGlowColor: "#c8ff91"
-
   readonly property string homeDirectory: Quickshell.env("HOME")
 
   readonly property string placeholderText: "Enter Password"
@@ -342,7 +340,7 @@ Item {
         width: parent.width * 1.10
         height: parent.height * 2.10
         radius: height / 2
-        color: root.oligarchyGlowColor
+        color: Color.accent
         opacity: 0.045
 
         layer.enabled: true
@@ -351,6 +349,34 @@ Item {
           blurEnabled: true
           blur: 1.0
           blurMax: 64
+        }
+      }
+
+      Image {
+        id: oligarchyWordmarkDepth
+
+        anchors.centerIn: parent
+
+        x: 6
+        y: 8
+
+        width: parent.width
+        height: parent.height
+
+        source: Qt.resolvedUrl("assets/generated/oligarchy-official-wordmark.png")
+
+        fillMode: Image.PreserveAspectFit
+        smooth: true
+        mipmap: true
+        asynchronous: false
+        cache: true
+        opacity: 0.72
+
+        layer.enabled: true
+
+        layer.effect: MultiEffect {
+          colorization: 1.0
+          colorizationColor: Qt.darker(Color.accent, 180)
         }
       }
 
@@ -378,7 +404,7 @@ Item {
           blur: 1.0
           blurMax: 32
           colorization: 1.0
-          colorizationColor: root.oligarchyGlowColor
+          colorizationColor: Color.accent
         }
       }
 
@@ -402,7 +428,7 @@ Item {
 
         layer.effect: MultiEffect {
           colorization: 1.0
-          colorizationColor: root.oligarchyGlowColor
+          colorizationColor: Color.accent
         }
       }
 
@@ -417,7 +443,7 @@ Item {
 
         text: root.oligarchyTagline
 
-        color: root.oligarchyGlowColor
+        color: Color.accent
         opacity: 0.78
 
         font.family: Style.font.family
