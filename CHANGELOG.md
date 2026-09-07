@@ -8,6 +8,7 @@
 - Replaced the marketplace/README preview with the latest lockscreen capture.
 - Rebalanced the lockscreen into a centered identity layout with side clock and session-module zones.
 - Increased the display name size for clearer identity confirmation.
+- Lowered the centered identity composition to align visually with the side information zones.
 - Added a root-level `preview.png` marketplace preview image.
 - Fixed an intermittent Hyprland failsafe screen by shutting down terminal-based screensaver windows before starting the session-lock handshake.
 - Prevented monitor changes during an active lock from triggering a duplicate stranded-lock recovery.

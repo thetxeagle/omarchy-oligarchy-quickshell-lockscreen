@@ -15,6 +15,7 @@ Reworked the lockscreen composition to match the requested reference layout and 
 - Added a restrained right-side secure-channel placeholder block for future content.
 - Moved the avatar, display name, and password field directly below the centered Oligarchy wordmark.
 - Increased the display name from 17px to 22px.
+- Lowered the centered composition so the wordmark and identity stack share the side zones’ visual centerline.
 
 ## Decisions Made
 
@@ -27,6 +28,7 @@ Reworked the lockscreen composition to match the requested reference layout and 
 - `omarchy plugin validate .` passed.
 - `git diff --check` passed.
 - Live plugin reload and `omarchy-shell lock preview` passed after removing an unsupported `border.alpha` property.
+- Follow-up screenshot review showed the central stack was too high; moved its top anchor from 26% to 34% of screen height.
 
 ## Next Steps
 
