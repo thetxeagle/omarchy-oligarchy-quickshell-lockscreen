@@ -421,7 +421,9 @@ Item {
 
   Process {
     id: blankProcess
-    command: ["bash", "-c", "omarchy-brightness-keyboard off; omarchy-brightness-display off"]
+    // Keep the lock surface stable. DPMS disable removes the monitor outputs
+    // while WlSessionLock is active and can invalidate every shell surface.
+    command: ["bash", "-c", "omarchy-brightness-keyboard off"]
   }
 
   Process {
