@@ -34,5 +34,5 @@ Restored monitor sleep while preventing the zero-output transition that crashes 
 
 ## Next Steps
 
-- [ ] Validate, install, and preview-test.
+- [x] Validate, install, and preview-test.
 - [x] Commit and push.
