@@ -416,14 +416,17 @@ Item {
 
   Process {
     id: wakeProcess
-    command: ["bash", "-c", "omarchy-system-wake"]
+    // Wake physical outputs before removing the keepalive output. This keeps
+    // Quickshell from observing a zero-output FALLBACK transition.
+    command: ["bash", "-c", "omarchy-system-wake; hyprctl output remove OligarchyLockKeepalive >/dev/null 2>&1 || true"]
   }
 
   Process {
     id: blankProcess
-    // Keep the lock surface stable. DPMS disable removes the monitor outputs
-    // while WlSessionLock is active and can invalidate every shell surface.
-    command: ["bash", "-c", "omarchy-brightness-keyboard off"]
+    // Keep one compositor output alive while the physical displays sleep.
+    // Without it, DPMS can create a zero-output FALLBACK transition and
+    // invalidate every shell surface attached to WlSessionLock.
+    command: ["bash", "-c", "hyprctl monitors all | grep -q 'Monitor OligarchyLockKeepalive' || hyprctl output create headless OligarchyLockKeepalive; sleep 1; omarchy-brightness-keyboard off; hyprctl dispatch 'hl.dsp.dpms({ action = \"disable\" })'"]
   }
 
   Process {

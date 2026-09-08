@@ -11,6 +11,7 @@
 - Lowered the centered identity composition to align visually with the side information zones.
 - Shifted the central identity composition farther down after screenshot review.
 - Avoided disabling monitor DPMS during an active lock to prevent Wayland output loss and Hyprland failsafe recovery.
+- Preserved monitor sleep with a temporary headless output during DPMS blanking to avoid the zero-output lock crash.
 - Added a root-level `preview.png` marketplace preview image.
 - Fixed an intermittent Hyprland failsafe screen by shutting down terminal-based screensaver windows before starting the session-lock handshake.
 - Prevented monitor changes during an active lock from triggering a duplicate stranded-lock recovery.
