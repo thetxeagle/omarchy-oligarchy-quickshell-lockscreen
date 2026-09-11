@@ -41,12 +41,17 @@ remove every physical output before Quickshell finished processing the wake.
   `eglSwapBuffers failed`, `FALLBACK` removal, and fatal Wayland disconnect.
 - A post-fix lock completed with `secure=true` and no matching output-loss
   errors in the following boot.
+- `omarchy plugin validate .`, `jq empty manifest.json`, and `bash -n
+  scripts/regenerate-wordmark.sh` passed.
+- The active Quickshell hot-reloaded `soulshocker.lock` with no QML load error.
+- `hyprctl reload`, `hyprctl configerrors`, and live monitor inspection were
+  unavailable from this shell because the graphical Hyprland socket timed out.
 - Full sleep/wake testing remains pending because it can interrupt the active
   desktop session.
 
 ## Next Steps
 
-- [ ] Validate the plugin and reload the shell.
+- [x] Validate the plugin and reload the shell.
 - [ ] Run repeated lock, blank, wake, and unlock cycles.
 - [ ] Confirm both physical monitors return at 3840x2160 with the intended
   refresh rates.
