@@ -416,9 +416,10 @@ Item {
 
   Process {
     id: wakeProcess
-    // Wake physical outputs before removing the keepalive output. This keeps
-    // Quickshell from observing a zero-output FALLBACK transition.
-    command: ["bash", "-c", "omarchy-system-wake; hyprctl output remove OligarchyLockKeepalive >/dev/null 2>&1 || true"]
+    // Wake physical outputs, then wait for the outputs that existed before
+    // blanking to return. Removing the bridge too early recreates the
+    // zero-output FALLBACK transition this plugin is meant to avoid.
+    command: ["bash", "-c", "state=\"${XDG_RUNTIME_DIR:-/tmp}/omarchy-oligarchy-lock-outputs\"; expected=$(cat \"$state\" 2>/dev/null || printf 1); omarchy-system-wake; for attempt in $(seq 1 40); do ready=$(hyprctl monitors -j 2>/dev/null | jq --argjson expected \"$expected\" '[.[] | select(.name != \"OligarchyLockKeepalive\" and .name != \"FALLBACK\")] as $physical | (([$physical[] | select(.disabled == false and .dpmsStatus == true)] | length) >= $expected) and (($physical | length) >= $expected)' 2>/dev/null || printf false); if [ \"$ready\" = true ]; then break; fi; sleep 0.25; done; hyprctl output remove OligarchyLockKeepalive >/dev/null 2>&1 || true; rm -f \"$state\""]
   }
 
   Process {
@@ -426,7 +427,7 @@ Item {
     // Keep one compositor output alive while the physical displays sleep.
     // Without it, DPMS can create a zero-output FALLBACK transition and
     // invalidate every shell surface attached to WlSessionLock.
-    command: ["bash", "-c", "hyprctl monitors all | grep -q 'Monitor OligarchyLockKeepalive' || hyprctl output create headless OligarchyLockKeepalive; sleep 1; omarchy-brightness-keyboard off; hyprctl dispatch 'hl.dsp.dpms({ action = \"disable\" })'"]
+    command: ["bash", "-c", "state=\"${XDG_RUNTIME_DIR:-/tmp}/omarchy-oligarchy-lock-outputs\"; hyprctl monitors -j 2>/dev/null | jq '[.[] | select(.name != \"OligarchyLockKeepalive\" and .name != \"FALLBACK\" and .disabled == false)] | length' > \"$state\"; hyprctl monitors -j 2>/dev/null | jq -e 'any(.[]; .name == \"OligarchyLockKeepalive\")' >/dev/null 2>&1 || hyprctl output create headless OligarchyLockKeepalive; sleep 1; omarchy-brightness-keyboard off; hyprctl dispatch 'hl.dsp.dpms({ action = \"disable\" })'"]
   }
 
   Process {
