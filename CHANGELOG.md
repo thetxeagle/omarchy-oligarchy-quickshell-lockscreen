@@ -14,6 +14,7 @@
 - Preserved monitor sleep with a temporary headless output during DPMS blanking to avoid the zero-output lock crash.
 - Waits for the pre-blank physical outputs to return before removing the headless wake bridge.
 - Shrinks the centered lockscreen composition to 80% while preserving centered anchors on portrait outputs.
+- Adds a portrait layout that centers the clock above the wordmark and hides the landscape-only side module to prevent overlap.
 - Added a root-level `preview.png` marketplace preview image.
 - Fixed an intermittent Hyprland failsafe screen by shutting down terminal-based screensaver windows before starting the session-lock handshake.
 - Prevented monitor changes during an active lock from triggering a duplicate stranded-lock recovery.

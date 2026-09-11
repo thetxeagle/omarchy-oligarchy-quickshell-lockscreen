@@ -28,6 +28,7 @@ Item {
   // This is intentionally a single tuning knob for future display-specific
   // adjustments instead of scattering smaller dimensions through the view.
   readonly property real visualScale: 0.8
+  readonly property bool portraitLayout: root.height > root.width * 1.15
 
   readonly property string placeholderText: "Enter Password"
 
@@ -240,13 +241,16 @@ Item {
 
       scale: root.visualScale
 
-      anchors.left: parent.left
+      anchors.left: root.portraitLayout ? undefined : parent.left
       anchors.leftMargin: Math.max(
         48,
         parent.width * 0.085
       )
-      anchors.verticalCenter: parent.verticalCenter
-      anchors.verticalCenterOffset: -parent.height * 0.06
+      anchors.horizontalCenter: root.portraitLayout ? parent.horizontalCenter : undefined
+      anchors.top: root.portraitLayout ? parent.top : undefined
+      anchors.topMargin: root.portraitLayout ? parent.height * 0.28 : 0
+      anchors.verticalCenter: root.portraitLayout ? undefined : parent.verticalCenter
+      anchors.verticalCenterOffset: root.portraitLayout ? 0 : -parent.height * 0.06
 
       spacing: 7
 
@@ -312,6 +316,7 @@ Item {
       id: reservedModule
 
       scale: root.visualScale
+      visible: !root.portraitLayout
 
       width: Math.min(parent.width * 0.19, 360)
       height: 112
@@ -410,7 +415,7 @@ Item {
       anchors.top: parent.top
       anchors.topMargin: Math.max(
         220,
-        parent.height * 0.41
+        parent.height * (root.portraitLayout ? 0.40 : 0.41)
       )
 
       Rectangle {
