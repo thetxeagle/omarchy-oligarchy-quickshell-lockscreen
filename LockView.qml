@@ -24,6 +24,10 @@ Item {
   property string displayName: ""
   property string fallbackUsername: ""
   readonly property string homeDirectory: Quickshell.env("HOME")
+  // Keep the composition centered while giving portrait outputs some room.
+  // This is intentionally a single tuning knob for future display-specific
+  // adjustments instead of scattering smaller dimensions through the view.
+  readonly property real visualScale: 0.8
 
   readonly property string placeholderText: "Enter Password"
 
@@ -234,6 +238,8 @@ Item {
     Column {
       id: clockGroup
 
+      scale: root.visualScale
+
       anchors.left: parent.left
       anchors.leftMargin: Math.max(
         48,
@@ -304,6 +310,8 @@ Item {
     /* Reserved for the right-side session module. */
     Item {
       id: reservedModule
+
+      scale: root.visualScale
 
       width: Math.min(parent.width * 0.19, 360)
       height: 112
@@ -392,6 +400,8 @@ Item {
     */
     Item {
       id: brandGroup
+
+      scale: root.visualScale
 
       width: Math.min(root.width * 0.66, 1280)
       height: width * 10070 / 55792.5
@@ -529,6 +539,8 @@ Item {
      */
     Column {
       id: loginGroup
+
+      scale: root.visualScale
 
       anchors.horizontalCenter: parent.horizontalCenter
       anchors.top: brandGroup.bottom
