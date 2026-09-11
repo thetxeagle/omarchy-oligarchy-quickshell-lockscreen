@@ -13,6 +13,8 @@
 - Avoided disabling monitor DPMS during an active lock to prevent Wayland output loss and Hyprland failsafe recovery.
 - Preserved monitor sleep with a temporary headless output during DPMS blanking to avoid the zero-output lock crash.
 - Stops disabling monitor DPMS during lock blanking after the bridge still reproduced zero-output wake failures; keyboard blanking remains enabled.
+- Restores Omarchy's delayed display blanking while retaining the 25-second visible lockscreen timer and no-real-output recovery guard.
+- Forces a global DPMS enable on wake so staggered outputs cannot leave the vertical monitor asleep behind an already-lit primary.
 - Avoids stranded-lock recovery while Hyprland reports no real outputs, preventing repeated lock respawns during a compositor outage.
 - Shrinks the centered lockscreen composition to 80% while preserving centered anchors on portrait outputs.
 - Adds a portrait layout that centers the clock above the wordmark and hides the landscape-only side module to prevent overlap.

@@ -420,17 +420,19 @@ Item {
 
   Process {
     id: wakeProcess
-    // Restore keyboard lighting after unlock. Monitor DPMS is intentionally
-    // left alone: turning every output off during a session lock can make
-    // Hyprland expose a zero-output FALLBACK and strand the compositor.
-    command: ["bash", "-c", "omarchy-system-wake"]
+    // Omarchy's wake helper skips DPMS enable when any active output is already
+    // lit. With staggered NVIDIA output wake, that leaves the vertical panel
+    // asleep when the primary returns first. Force one global enable here.
+    command: ["bash", "-c", "omarchy-brightness-keyboard restore; hyprctl dispatch 'hl.dsp.dpms({ action = \"enable\" })' >/dev/null 2>&1 || true; omarchy-hyprland-monitor-clamshell >/dev/null 2>&1 || true"]
   }
 
   Process {
     id: blankProcess
-    // Keep the lock surface on real outputs. Keyboard blanking still reduces
-    // idle glow, while monitor DPMS stays untouched for reliable wake.
-    command: ["bash", "-c", "omarchy-brightness-keyboard off"]
+    // Match Omarchy's stock lock service: blank the keyboard and then let the
+    // display helper perform its DPMS transition after the delayed timer.
+    // The 25-second timer below intentionally keeps the lockscreen visible
+    // before this runs.
+    command: ["bash", "-c", "omarchy-brightness-keyboard off; omarchy-brightness-display off"]
   }
 
   Process {
