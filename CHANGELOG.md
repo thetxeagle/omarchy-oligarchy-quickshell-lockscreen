@@ -12,7 +12,8 @@
 - Shifted the central identity composition farther down after screenshot review.
 - Avoided disabling monitor DPMS during an active lock to prevent Wayland output loss and Hyprland failsafe recovery.
 - Preserved monitor sleep with a temporary headless output during DPMS blanking to avoid the zero-output lock crash.
-- Waits for the pre-blank physical outputs to return before removing the headless wake bridge.
+- Stops disabling monitor DPMS during lock blanking after the bridge still reproduced zero-output wake failures; keyboard blanking remains enabled.
+- Avoids stranded-lock recovery while Hyprland reports no real outputs, preventing repeated lock respawns during a compositor outage.
 - Shrinks the centered lockscreen composition to 80% while preserving centered anchors on portrait outputs.
 - Adds a portrait layout that centers the clock above the wordmark and hides the landscape-only side module to prevent overlap.
 - Added a root-level `preview.png` marketplace preview image.

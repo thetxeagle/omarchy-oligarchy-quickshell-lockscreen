@@ -91,6 +91,10 @@ Item {
   function checkStrandedLock() {
     if (strandedLockResolved || strandedLockCheckProc.running) return
 
+    // Do not relaunch the lock against Hyprland's placeholder screen while
+    // the compositor has no real outputs. Wait for a monitor-added event.
+    if (!hasRealScreen()) return
+
     // A lock this shell took is nobody's orphan.
     if (locked || lockRequested || activeLockObserved) {
       strandedLockResolved = true
@@ -416,18 +420,17 @@ Item {
 
   Process {
     id: wakeProcess
-    // Wake physical outputs, then wait for the outputs that existed before
-    // blanking to return. Removing the bridge too early recreates the
-    // zero-output FALLBACK transition this plugin is meant to avoid.
-    command: ["bash", "-c", "state=\"${XDG_RUNTIME_DIR:-/tmp}/omarchy-oligarchy-lock-outputs\"; expected=$(cat \"$state\" 2>/dev/null || printf 1); omarchy-system-wake; for attempt in $(seq 1 40); do ready=$(hyprctl monitors -j 2>/dev/null | jq --argjson expected \"$expected\" '[.[] | select(.name != \"OligarchyLockKeepalive\" and .name != \"FALLBACK\")] as $physical | (([$physical[] | select(.disabled == false and .dpmsStatus == true)] | length) >= $expected) and (($physical | length) >= $expected)' 2>/dev/null || printf false); if [ \"$ready\" = true ]; then break; fi; sleep 0.25; done; hyprctl output remove OligarchyLockKeepalive >/dev/null 2>&1 || true; rm -f \"$state\""]
+    // Restore keyboard lighting after unlock. Monitor DPMS is intentionally
+    // left alone: turning every output off during a session lock can make
+    // Hyprland expose a zero-output FALLBACK and strand the compositor.
+    command: ["bash", "-c", "omarchy-system-wake"]
   }
 
   Process {
     id: blankProcess
-    // Keep one compositor output alive while the physical displays sleep.
-    // Without it, DPMS can create a zero-output FALLBACK transition and
-    // invalidate every shell surface attached to WlSessionLock.
-    command: ["bash", "-c", "state=\"${XDG_RUNTIME_DIR:-/tmp}/omarchy-oligarchy-lock-outputs\"; hyprctl monitors -j 2>/dev/null | jq '[.[] | select(.name != \"OligarchyLockKeepalive\" and .name != \"FALLBACK\" and .disabled == false)] | length' > \"$state\"; hyprctl monitors -j 2>/dev/null | jq -e 'any(.[]; .name == \"OligarchyLockKeepalive\")' >/dev/null 2>&1 || hyprctl output create headless OligarchyLockKeepalive; sleep 1; omarchy-brightness-keyboard off; hyprctl dispatch 'hl.dsp.dpms({ action = \"disable\" })'"]
+    // Keep the lock surface on real outputs. Keyboard blanking still reduces
+    // idle glow, while monitor DPMS stays untouched for reliable wake.
+    command: ["bash", "-c", "omarchy-brightness-keyboard off"]
   }
 
   Process {
