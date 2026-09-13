@@ -6,6 +6,9 @@
   "author": "thetxeagle",
   "license": "MIT",
   "description": "A polished Oligarchy-themed Quickshell lock screen for Omarchy.",
+  "omarchy": {
+    "clonedFrom": "omarchy.lock"
+  },
   "kinds": [
     "service"
   ],

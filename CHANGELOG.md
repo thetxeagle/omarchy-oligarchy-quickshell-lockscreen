@@ -10,17 +10,12 @@
 - Increased the display name size for clearer identity confirmation.
 - Lowered the centered identity composition to align visually with the side information zones.
 - Shifted the central identity composition farther down after screenshot review.
-- Avoided disabling monitor DPMS during an active lock to prevent Wayland output loss and Hyprland failsafe recovery.
-- Preserved monitor sleep with a temporary headless output during DPMS blanking to avoid the zero-output lock crash.
-- Stops disabling monitor DPMS during lock blanking after the bridge still reproduced zero-output wake failures; keyboard blanking remains enabled.
-- Restores Omarchy's delayed display blanking while retaining the 25-second visible lockscreen timer and no-real-output recovery guard.
-- Forces a global DPMS enable on wake so staggered outputs cannot leave the vertical monitor asleep behind an already-lit primary.
-- Avoids stranded-lock recovery while Hyprland reports no real outputs, preventing repeated lock respawns during a compositor outage.
+- Uses the repository's canonical plugin identity for the installed lockscreen instead of the historical `soulshocker.lock` clone alias.
+- Declares `omarchy.lock` as the canonical replacement source so enabling the plugin disables the stock lock and preserves trusted authentication capabilities.
+- Rebases lock, DPMS, wake, and stranded-lock handling on Omarchy's stock service while retaining the 25-second lockscreen display timer.
 - Shrinks the centered lockscreen composition to 80% while preserving centered anchors on portrait outputs.
 - Adds a portrait layout that centers the clock above the wordmark and hides the landscape-only side module to prevent overlap.
 - Added a root-level `preview.png` marketplace preview image.
-- Fixed an intermittent Hyprland failsafe screen by shutting down terminal-based screensaver windows before starting the session-lock handshake.
-- Prevented monitor changes during an active lock from triggering a duplicate stranded-lock recovery.
 - Prepared the Oligarchy-only public plugin package.
 - Bundled local taglines and deterministic wordmark generation.
 - Preserved Omarchy password and fingerprint authentication behavior.

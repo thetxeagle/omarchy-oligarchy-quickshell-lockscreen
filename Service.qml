@@ -33,7 +33,6 @@ Item {
   property string lastEventAt: ""
   property bool strandedLock: false
   property bool strandedLockResolved: false
-  property bool activeLockObserved: false
 
   readonly property bool locked: lockRequested || sessionLock.locked || sessionLock.secure
   readonly property bool authenticating: authenticatingPassword || fingerprintAuthenticating
@@ -61,14 +60,6 @@ Item {
     if (!pendingSessionLockTimer.running) pendingSessionLockTimer.start()
   }
 
-  function prepareLockSurface() {
-    // The Omarchy idle service requests the Wayland lock before its wrapper
-    // tears down the terminal-based screensaver. Give Hyprland one client
-    // transition at a time; otherwise the lock handshake can sit in failsafe
-    // until the screensaver windows finish disappearing.
-    if (!stopScreensaverProcess.running) stopScreensaverProcess.running = true
-  }
-
   function requestSessionLock() {
     if (!lockRequested || sessionLock.locked || sessionLock.secure) return
     if (sessionLockStabilizeTimer.running) return
@@ -91,12 +82,8 @@ Item {
   function checkStrandedLock() {
     if (strandedLockResolved || strandedLockCheckProc.running) return
 
-    // Do not relaunch the lock against Hyprland's placeholder screen while
-    // the compositor has no real outputs. Wait for a monitor-added event.
-    if (!hasRealScreen()) return
-
     // A lock this shell took is nobody's orphan.
-    if (locked || lockRequested || activeLockObserved) {
+    if (locked || lockRequested) {
       strandedLockResolved = true
       return
     }
@@ -148,8 +135,7 @@ Item {
     lockRequested = true
     armBlankTimer()
     logEvent("lock-requested")
-    logEvent("lock-pending: screensaver-shutdown")
-    prepareLockSurface()
+    queueSessionLock()
 
     Qt.callLater(function() {
       root.refreshBackground()
@@ -163,7 +149,6 @@ Item {
     if (!root.locked && !lockRequested) return
 
     lockRequested = false
-    activeLockObserved = false
     pendingSessionLock = false
     sessionLockStabilizeTimer.stop()
     pendingSessionLockTimer.stop()
@@ -250,7 +235,6 @@ Item {
     onSecureStateChanged: {
       root.logEvent("secure=" + secure)
       if (secure) {
-        root.activeLockObserved = true
         root.pendingSessionLock = false
         sessionLockStabilizeTimer.stop()
         pendingSessionLockTimer.stop()
@@ -269,7 +253,6 @@ Item {
 
       if (!locked && root.lockRequested) {
         root.lockRequested = false
-        root.activeLockObserved = false
         root.pendingSessionLock = false
         sessionLockStabilizeTimer.stop()
         pendingSessionLockTimer.stop()
@@ -420,28 +403,12 @@ Item {
 
   Process {
     id: wakeProcess
-    // Omarchy's wake helper skips DPMS enable when any active output is already
-    // lit. With staggered NVIDIA output wake, that leaves the vertical panel
-    // asleep when the primary returns first. Force one global enable here.
-    command: ["bash", "-c", "omarchy-brightness-keyboard restore; hyprctl dispatch 'hl.dsp.dpms({ action = \"enable\" })' >/dev/null 2>&1 || true; omarchy-hyprland-monitor-clamshell >/dev/null 2>&1 || true"]
+    command: ["bash", "-c", "omarchy-system-wake"]
   }
 
   Process {
     id: blankProcess
-    // Match Omarchy's stock lock service: blank the keyboard and then let the
-    // display helper perform its DPMS transition after the delayed timer.
-    // The 25-second timer below intentionally keeps the lockscreen visible
-    // before this runs.
     command: ["bash", "-c", "omarchy-brightness-keyboard off; omarchy-brightness-display off"]
-  }
-
-  Process {
-    id: stopScreensaverProcess
-    command: ["bash", "-lc", "pkill -f '[o]rg.omarchy.screensaver' 2>/dev/null || true"]
-
-    onExited: {
-      if (root.lockRequested) root.queueSessionLock()
-    }
   }
 
   Timer {
