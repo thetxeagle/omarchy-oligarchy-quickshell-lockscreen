@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Added `~/.lockcolor` palette selection with 20 bundled high-contrast choices and safe fallback to the current Omarchy accent for missing, invalid, or ambiguous configuration.
+- Added `~/.locktimer` support: `0` keeps the rendered lockscreen visible indefinitely, while a positive whole number selects the DPMS standby delay in seconds; invalid or missing values retain the 25-second default.
+- Restored the stock Omarchy blurred-current-wallpaper treatment behind the Oligarchy lockscreen composition.
 - Replaced the lockscreen wordmark with the companion vector Oligarchy banner and added a restrained green phosphor glow treatment.
 - Corrected the wordmark rendering to use the active accent color with layered face, extrusion, and glow depth.
 - Added an eye control to show or hide the password entry while preserving masked-by-default behavior.

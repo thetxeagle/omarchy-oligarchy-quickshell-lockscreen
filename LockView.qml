@@ -20,6 +20,7 @@ Item {
   property string passwordText: ""
   property bool syncingPasswordText: false
   property bool passwordVisible: false
+  property color lockColor: Color.accent
   property string oligarchyTagline: ""
   property string displayName: ""
   property string fallbackUsername: ""
@@ -56,6 +57,14 @@ Item {
   signal passwordTextEdited(string password)
   signal clearFailureRequested()
   signal wakeRequested()
+
+  // Match the stock Omarchy lockscreen's cache-busted wallpaper loading so a
+  // background change is visible without restarting the shell.
+  function fileUrl(path) {
+    if (!path) return ""
+    var encoded = String(path).split("/").map(encodeURIComponent).join("/")
+    return "file://" + encoded + "?v=" + backgroundVersion
+  }
 
   function formatClock(date) {
     var hour = date.getHours()
@@ -201,12 +210,34 @@ Item {
 
     color: "#070707"
 
+    Image {
+      id: wallpaper
+      anchors.fill: parent
+      source: root.loadBackground ? root.fileUrl(root.backgroundPath) : ""
+      fillMode: Image.PreserveAspectCrop
+      asynchronous: true
+      cache: false
+      sourceSize.width: width
+      sourceSize.height: height
+    }
+
+    MultiEffect {
+      anchors.fill: wallpaper
+      source: wallpaper
+      autoPaddingEnabled: false
+      blurEnabled: root.loadBackground && wallpaper.status === Image.Ready
+      blur: 1.0
+      blurMax: 128
+      blurMultiplier: 1.25
+      contrast: -0.08
+    }
+
     Rectangle {
       anchors.top: parent.top
       anchors.left: parent.left
       anchors.right: parent.right
       height: 1
-      color: Color.accent
+      color: root.lockColor
       opacity: 0.28
     }
 
@@ -215,7 +246,7 @@ Item {
       anchors.left: parent.left
       anchors.right: parent.right
       height: 1
-      color: Color.accent
+      color: root.lockColor
       opacity: 0.18
     }
 
@@ -259,7 +290,7 @@ Item {
 
         text: "OLIGARCHY // SECURE SESSION"
 
-        color: Color.accent
+        color: root.lockColor
         opacity: 0.55
 
         font.family: Style.font.family
@@ -277,7 +308,7 @@ Item {
 
         text: root.formatClock(new Date())
 
-        color: Color.accent
+        color: root.lockColor
 
         font.family: Style.font.family
 
@@ -300,7 +331,7 @@ Item {
           "dddd, MMMM d"
         )
 
-        color: Color.accent
+        color: root.lockColor
         opacity: 0.75
 
         font.family: Style.font.family
@@ -332,11 +363,11 @@ Item {
         anchors.fill: parent
 
         radius: 10
-        color: Color.accent
+        color: root.lockColor
         opacity: 0.035
 
         border.width: 1
-        border.color: Color.accent
+        border.color: root.lockColor
       }
 
       Column {
@@ -347,7 +378,7 @@ Item {
         Text {
           text: "SECURE CHANNEL"
 
-          color: Color.accent
+          color: root.lockColor
           opacity: 0.58
 
           font.family: Style.font.family
@@ -360,7 +391,7 @@ Item {
           width: parent.width * 0.72
           height: 4
           radius: 2
-          color: Color.accent
+          color: root.lockColor
           opacity: 0.20
         }
 
@@ -368,7 +399,7 @@ Item {
           width: parent.width * 0.46
           height: 4
           radius: 2
-          color: Color.accent
+          color: root.lockColor
           opacity: 0.11
         }
       }
@@ -423,7 +454,7 @@ Item {
         width: parent.width * 1.10
         height: parent.height * 2.10
         radius: height / 2
-        color: Color.accent
+        color: root.lockColor
         opacity: 0.045
 
         layer.enabled: true
@@ -459,7 +490,7 @@ Item {
 
         layer.effect: MultiEffect {
           colorization: 1.0
-          colorizationColor: Qt.darker(Color.accent, 180)
+          colorizationColor: Qt.darker(root.lockColor, 180)
         }
       }
 
@@ -487,7 +518,7 @@ Item {
           blur: 1.0
           blurMax: 32
           colorization: 1.0
-          colorizationColor: Color.accent
+          colorizationColor: root.lockColor
         }
       }
 
@@ -511,7 +542,7 @@ Item {
 
         layer.effect: MultiEffect {
           colorization: 1.0
-          colorizationColor: Color.accent
+          colorizationColor: root.lockColor
         }
       }
 
@@ -526,7 +557,7 @@ Item {
 
         text: root.oligarchyTagline
 
-        color: Color.accent
+        color: root.lockColor
         opacity: 0.78
 
         font.family: Style.font.family
@@ -558,7 +589,7 @@ Item {
 
         text: "AUTHORIZED IDENTITY"
 
-        color: Color.accent
+        color: root.lockColor
         opacity: 0.52
 
         font.family: Style.font.family
@@ -589,7 +620,7 @@ Item {
           radius: width / 2
           color: "transparent"
           border.width: 1
-          border.color: Color.accent
+          border.color: root.lockColor
           opacity: 0.24
         }
 
@@ -602,7 +633,7 @@ Item {
           color: "#141414"
 
           border.width: 1
-          border.color: Color.accent
+          border.color: root.lockColor
         }
 
         Image {
@@ -646,7 +677,7 @@ Item {
 
           text: "󰀄"
 
-          color: Color.accent
+          color: root.lockColor
 
           font.family: Style.font.family
           font.pixelSize: 50
@@ -661,7 +692,7 @@ Item {
 
         text: root.displayName
 
-        color: Color.accent
+        color: root.lockColor
 
         font.family: Style.font.family
         font.pixelSize: 22
@@ -690,7 +721,7 @@ Item {
         border.color:
           root.errorState
             ? Color.lock.borderError
-            : Color.accent
+            : root.lockColor
 
         clip: true
 
@@ -729,13 +760,13 @@ Item {
           passwordMaskDelay: 0
 
           color:
-            Color.accent
+            root.lockColor
 
           selectionColor:
             Color.lock.selection
 
           selectedTextColor:
-            Color.accent
+            root.lockColor
 
           font.family:
             Style.font.family
@@ -765,7 +796,7 @@ Item {
           cursorDelegate: Rectangle {
             width: 1
 
-            color: Color.accent
+            color: root.lockColor
 
             visible:
               passwordInput.cursorVisible
@@ -834,7 +865,7 @@ Item {
           color:
             root.failureMessage.length > 0
               ? Color.lock.textError
-              : Color.accent
+              : root.lockColor
 
           font.family:
             Style.font.family
@@ -863,7 +894,7 @@ Item {
               ? "󰈈"
               : "󰈉"
 
-          color: Color.accent
+          color: root.lockColor
           opacity: 0.78
 
           font.family: Style.font.family
@@ -897,7 +928,7 @@ Item {
         Text {
           text: "󰈷"
 
-          color: Color.accent
+          color: root.lockColor
 
           font.family:
             Style.font.family
@@ -910,7 +941,7 @@ Item {
             "Fingerprint available"
 
           color:
-            Color.accent
+            root.lockColor
 
           font.family:
             Style.font.family

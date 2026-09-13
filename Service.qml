@@ -15,6 +15,8 @@ Item {
   readonly property string stateHome: home + "/.local/state"
   readonly property string userName: Quickshell.env("USER") || Quickshell.env("LOGNAME")
   readonly property string currentBackgroundLink: stateHome + "/omarchy/current/background"
+  readonly property int defaultBlankDelaySeconds: 25
+  readonly property int maximumBlankDelaySeconds: 2147483
 
   property bool lockRequested: false
   property bool pendingSessionLock: false
@@ -29,10 +31,12 @@ Item {
   property int failedAttempts: 0
   property string backgroundPath: ""
   property int backgroundVersion: 0
+  property color lockColor: Color.accent
   property string lastEvent: "init"
   property string lastEventAt: ""
   property bool strandedLock: false
   property bool strandedLockResolved: false
+  property int blankDelaySeconds: defaultBlankDelaySeconds
 
   readonly property bool locked: lockRequested || sessionLock.locked || sessionLock.secure
   readonly property bool authenticating: authenticatingPassword || fingerprintAuthenticating
@@ -107,6 +111,10 @@ Item {
     if (!fingerprintCheckProc.running) fingerprintCheckProc.running = true
   }
 
+  function refreshLockColor() {
+    if (!lockColorProcess.running) lockColorProcess.running = true
+  }
+
   function logEvent(event) {
     lastEvent = event
     lastEventAt = new Date().toISOString()
@@ -133,6 +141,7 @@ Item {
 
     resetAuthenticationState()
     lockRequested = true
+    refreshBlankDelay()
     armBlankTimer()
     logEvent("lock-requested")
     queueSessionLock()
@@ -140,6 +149,7 @@ Item {
     Qt.callLater(function() {
       root.refreshBackground()
       root.refreshFingerprintStatus()
+      root.refreshLockColor()
     })
 
     return true
@@ -160,8 +170,15 @@ Item {
   }
 
   function armBlankTimer() {
+    idleBlankTimer.stop()
+    if (blankDelaySeconds === 0) return
+
     idleBlankTimer.armedAt = Date.now()
-    idleBlankTimer.restart()
+    idleBlankTimer.start()
+  }
+
+  function refreshBlankDelay() {
+    if (!lockTimerProcess.running) lockTimerProcess.running = true
   }
 
   function runWake() {
@@ -276,6 +293,7 @@ Item {
         failedAttempts: root.failedAttempts
         inputEnabled: root.lockRequested
         loadBackground: root.locked
+        lockColor: root.lockColor
         passwordText: root.enteredPassword
         onPasswordTextEdited: function(password) { root.enteredPassword = password }
         onSubmitPassword: function(password) { root.submitPassword(password) }
@@ -306,6 +324,7 @@ Item {
       failedAttempts: 0
       inputEnabled: false
       loadBackground: root.previewVisible
+      lockColor: root.lockColor
       passwordText: ""
     }
 
@@ -387,6 +406,44 @@ Item {
   }
 
   Process {
+    id: lockTimerProcess
+    command: [
+      "bash",
+      "-lc",
+      "if [[ -r \"$HOME/.locktimer\" ]]; then head -c 64 \"$HOME/.locktimer\"; else printf '25'; fi"
+    ]
+    stdout: StdioCollector {
+      waitForEnd: true
+      onStreamFinished: {
+        var raw = String(text || "").trim()
+        var parsed = /^[0-9]+$/.test(raw) ? Number(raw) : root.defaultBlankDelaySeconds
+
+        if (!Number.isInteger(parsed) || parsed < 0 || parsed > root.maximumBlankDelaySeconds)
+          parsed = root.defaultBlankDelaySeconds
+
+        root.blankDelaySeconds = parsed
+        if (root.lockRequested) root.armBlankTimer()
+      }
+    }
+  }
+
+  Process {
+    id: lockColorProcess
+    command: [
+      "bash",
+      "-lc",
+      "if [[ -r \"$HOME/.lockcolor\" ]]; then awk 'BEGIN { IGNORECASE=1 } { sub(/\\r$/, \"\"); line=$0; sub(/^[[:space:]]*/, \"\", line); if (line == \"\" || line ~ /^#/) next; count++; split(line, fields, /[[:space:]]+/); if (fields[1] !~ /^[[:xdigit:]]{6}$/) invalid=1; else color=toupper(fields[1]) } END { if (!invalid && count == 1) printf \"#%s\", color }' \"$HOME/.lockcolor\"; fi"
+    ]
+    stdout: StdioCollector {
+      waitForEnd: true
+      onStreamFinished: {
+        var value = String(text || "").trim()
+        root.lockColor = /^#[0-9A-Fa-f]{6}$/.test(value) ? value : Color.accent
+      }
+    }
+  }
+
+  Process {
     id: strandedLockCheckProc
     command: ["bash", "-c", "omarchy-hyprland-session-locked"]
     onExited: function(exitCode) {
@@ -413,7 +470,7 @@ Item {
 
   Timer {
     id: idleBlankTimer
-    interval: 25000
+    interval: Math.max(1, root.blankDelaySeconds * 1000)
     repeat: false
     property double armedAt: 0
     onTriggered: {
@@ -504,6 +561,7 @@ Item {
   Component.onCompleted: {
     refreshBackground()
     refreshFingerprintStatus()
+    refreshLockColor()
     checkStrandedLock()
   }
 
@@ -531,6 +589,8 @@ Item {
         passwordPam: root.passwordPamConfigured,
         fingerprint: root.fingerprintConfigured,
         authenticating: root.authenticating,
+        blankDelaySeconds: root.blankDelaySeconds,
+        lockColor: String(root.lockColor),
         lastEvent: root.lastEvent,
         lastEventAt: root.lastEventAt
       })
@@ -539,6 +599,7 @@ Item {
     function preview(): string {
       root.refreshBackground()
       root.refreshFingerprintStatus()
+      root.refreshLockColor()
       root.previewVisible = true
       return "ok"
     }
