@@ -3,7 +3,7 @@
 ## Unreleased
 
 - Added `~/.lockcolor` palette selection with 20 bundled high-contrast choices and safe fallback to the current Omarchy accent for missing, invalid, or ambiguous configuration.
-- Added `~/.locktimer` support: `0` keeps the rendered lockscreen visible indefinitely, while a positive whole number selects the DPMS standby delay in seconds; invalid or missing values retain the 25-second default.
+- Added `~/.locktimer` support with fixed, non-sliding display windows: `0` keeps the rendered lockscreen visible indefinitely, while a positive whole number selects the DPMS standby delay in seconds; invalid or missing values use the 120-second default. Activity cannot postpone an active countdown, and the first wake after standby starts one fresh window.
 - Restored the stock Omarchy blurred-current-wallpaper treatment behind the Oligarchy lockscreen composition.
 - Replaced the lockscreen wordmark with the companion vector Oligarchy banner and added a restrained green phosphor glow treatment.
 - Corrected the wordmark rendering to use the active accent color with layered face, extrusion, and glow depth.
@@ -15,7 +15,7 @@
 - Shifted the central identity composition farther down after screenshot review.
 - Uses the repository's canonical plugin identity for the installed lockscreen instead of the historical `soulshocker.lock` clone alias.
 - Declares `omarchy.lock` as the canonical replacement source so enabling the plugin disables the stock lock and preserves trusted authentication capabilities.
-- Rebases lock, DPMS, wake, and stranded-lock handling on Omarchy's stock service while retaining the 25-second lockscreen display timer.
+- Rebases lock, DPMS, wake, and stranded-lock handling on Omarchy's stock service while retaining configurable lockscreen display blanking.
 - Shrinks the centered lockscreen composition to 80% while preserving centered anchors on portrait outputs.
 - Adds a portrait layout that centers the clock above the wordmark and hides the landscape-only side module to prevent overlap.
 - Added a root-level `preview.png` marketplace preview image.

@@ -15,7 +15,7 @@ Item {
   readonly property string stateHome: home + "/.local/state"
   readonly property string userName: Quickshell.env("USER") || Quickshell.env("LOGNAME")
   readonly property string currentBackgroundLink: stateHome + "/omarchy/current/background"
-  readonly property int defaultBlankDelaySeconds: 25
+  readonly property int defaultBlankDelaySeconds: 120
   readonly property int maximumBlankDelaySeconds: 2147483
 
   property bool lockRequested: false
@@ -36,6 +36,7 @@ Item {
   property string lastEventAt: ""
   property bool strandedLock: false
   property bool strandedLockResolved: false
+  property bool displayBlanked: false
   property int blankDelaySeconds: defaultBlankDelaySeconds
 
   readonly property bool locked: lockRequested || sessionLock.locked || sessionLock.secure
@@ -141,8 +142,9 @@ Item {
 
     resetAuthenticationState()
     lockRequested = true
+    displayBlanked = false
+    idleBlankTimer.stop()
     refreshBlankDelay()
-    armBlankTimer()
     logEvent("lock-requested")
     queueSessionLock()
 
@@ -164,17 +166,26 @@ Item {
     pendingSessionLockTimer.stop()
     resetAuthenticationState()
     idleBlankTimer.stop()
+    displayBlanked = false
     sessionLock.locked = false
     logEvent("unlocked")
     runWake()
   }
 
-  function armBlankTimer() {
+  function startBlankWindow() {
     idleBlankTimer.stop()
     if (blankDelaySeconds === 0) return
 
     idleBlankTimer.armedAt = Date.now()
     idleBlankTimer.start()
+  }
+
+  function rearmAfterBlank() {
+    if (!lockRequested || !displayBlanked || blankDelaySeconds === 0) return
+
+    displayBlanked = false
+    startBlankWindow()
+    logEvent("display-window-rearmed")
   }
 
   function refreshBlankDelay() {
@@ -183,11 +194,15 @@ Item {
 
   function runWake() {
     if (!wakeProcess.running) wakeProcess.running = true
-    if (lockRequested) armBlankTimer()
+    rearmAfterBlank()
   }
 
   function runBlank() {
-    if (!blankProcess.running) blankProcess.running = true
+    if (!lockRequested || displayBlanked || blankProcess.running) return
+
+    displayBlanked = true
+    logEvent("display-blanked")
+    blankProcess.running = true
   }
 
   function submitPassword(value) {
@@ -410,7 +425,7 @@ Item {
     command: [
       "bash",
       "-lc",
-      "if [[ -r \"$HOME/.locktimer\" ]]; then head -c 64 \"$HOME/.locktimer\"; else printf '25'; fi"
+      "if [[ -r \"$HOME/.locktimer\" ]]; then head -c 64 \"$HOME/.locktimer\"; else printf '120'; fi"
     ]
     stdout: StdioCollector {
       waitForEnd: true
@@ -422,7 +437,7 @@ Item {
           parsed = root.defaultBlankDelaySeconds
 
         root.blankDelaySeconds = parsed
-        if (root.lockRequested) root.armBlankTimer()
+        if (root.lockRequested && !root.displayBlanked) root.startBlankWindow()
       }
     }
   }
@@ -478,13 +493,23 @@ Item {
       // blank the freshly woken unlock screen under the user. Wall-clock time
       // exposes the gap: take a fresh run-up instead of blanking.
       if (Date.now() - armedAt > interval + 2000) {
-        root.armBlankTimer()
+        root.startBlankWindow()
         return
       }
-      // Only a password check in flight should hold the display up. The
-      // fingerprint PAM stays armed for the whole lock, so gating on
-      // `authenticating` here would keep the panel lit until unlock.
-      if (root.lockRequested && !root.authenticatingPassword) root.runBlank()
+      if (root.lockRequested) root.runBlank()
+    }
+  }
+
+  // Omarchy's global idle service can wake DPMS without calling this plugin.
+  // Observe activity while blanked so the first wake starts one fresh fixed
+  // display window. Further activity does not postpone that countdown.
+  IdleMonitor {
+    id: lockedActivityMonitor
+    enabled: root.lockRequested && root.blankDelaySeconds > 0
+    timeout: 1
+    respectInhibitors: false
+    onIsIdleChanged: {
+      if (!isIdle) root.rearmAfterBlank()
     }
   }
 
@@ -530,12 +555,6 @@ Item {
       strandedLockRetryTimer.rearm()
       root.checkStrandedLock()
     }
-  }
-
-  onAuthenticatingPasswordChanged: {
-    if (!lockRequested) return
-    if (authenticatingPassword) idleBlankTimer.stop()
-    else armBlankTimer()
   }
 
   FileView {
@@ -590,6 +609,7 @@ Item {
         fingerprint: root.fingerprintConfigured,
         authenticating: root.authenticating,
         blankDelaySeconds: root.blankDelaySeconds,
+        displayBlanked: root.displayBlanked,
         lockColor: String(root.lockColor),
         lastEvent: root.lastEvent,
         lastEventAt: root.lastEventAt

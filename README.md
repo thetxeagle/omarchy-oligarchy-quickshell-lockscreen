@@ -40,16 +40,21 @@ Create `~/.displayName` with a non-empty name to customize the greeting. If abse
 Create `~/.locktimer` with a whole number of seconds to control how long the rendered lockscreen remains visible before Omarchy puts the displays into DPMS standby. For example:
 
 ```sh
-printf '%s\n' 300 > ~/.locktimer
+printf '%s\n' 120 > ~/.locktimer
 ```
 
 | `~/.locktimer` value | Behavior |
 | --- | --- |
-| Missing or invalid | Use the 25-second default |
+| Missing or invalid | Use the 120-second default |
 | `0` | Keep the rendered lockscreen visible indefinitely |
-| Positive whole number | Enter DPMS standby after that many seconds |
+| Positive whole number | Enter DPMS standby after one fixed display window of that many seconds |
 
 Values larger than 2,147,483 seconds are treated as invalid. The file is read again on every lock, so changes do not require reinstalling or restarting the plugin. Display wake and monitor handling remain delegated to stock Omarchy: input wakes the existing secure lockscreen without reloading Hyprland or changing monitor topology.
+
+The countdown is fixed rather than activity-sliding: typing, moving the mouse,
+or retrying a password does not postpone standby. Once the displays have
+entered standby, the first input that wakes them starts one fresh fixed window.
+This prevents unattended input noise from keeping the lockscreen illuminated.
 
 ### Lockscreen color
 
